@@ -1,0 +1,71 @@
+---
+title: "quarto-website-test"
+filters:
+    - shinylive
+---
+
+This is a Quarto website.
+
+To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
+
+```{bash}
+#run first time setting up directory
+#pip install shinylive --upgrade
+#quarto add quarto-ext/shinylive
+```
+
+
+
+```{shinylive-python}
+#| standalone: true
+
+from pathlib import Path
+import pandas as pd
+# issue with installing polars within the shinylive environment
+
+from shiny import reactive
+from shiny.express import input, render, ui
+
+#pip install shinylive --upgrade
+
+with ui.navset_card_pill(id="tab"):  
+
+    with ui.nav_panel("Data frame"):
+        @render.data_frame
+        def frame():
+            return dat()
+
+    with ui.nav_panel("Table"):
+        @render.table
+        def table():
+            return dat()
+                
+
+with ui.sidebar(title="Filters"):
+    ui.input_slider(
+        "mpg",
+        "MPG",
+        min=0,
+        max=40,
+        value=[0, 40]
+    )
+
+
+@reactive.calc
+def df():
+    return pd.read_csv("mtcars.csv")
+
+@reactive.effect
+def _():
+    df = df()
+    min_mpg = df["mpg"].min()
+    max_mpg = df["mpg"].max()
+    ui.update_slider("mpg", min=min_mpg, max=max_mpg, value=[min_mpg, max_mpg])
+
+
+@reactive.calc
+def dat():
+    df = df()
+    return df[(df["mpg"] >= input.mpg()[0]) & (df["mpg"] <= input.mpg()[1])]
+```
+
