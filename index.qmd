@@ -18,6 +18,7 @@ To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
 
 ```{shinylive-python}
 #| standalone: true
+#| column: screen
 
 from pathlib import Path
 import pandas as pd
